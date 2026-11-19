@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Icon from '../components/Icon.astro';
 import { site } from '../data/site';
+import { url } from '../utils/url';
 
 interface Props {
   title?: string;
@@ -12,7 +13,7 @@ interface Props {
 
 const { title, description = site.description } = Astro.props;
 const fullTitle = title ? `${title} | ${site.name} (${site.shortName})` : `${site.name} (${site.shortName}) – Nenkin · Thuế Nhật Bản · Visa Gino 2`;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const canonical = new URL(Astro.url.pathname.replace(/index\.html$/, ''), Astro.site);
 
 // Dữ liệu có cấu trúc cho Google (hiện thông tin doanh nghiệp trên kết quả tìm kiếm).
 const jsonLd = {
@@ -21,7 +22,7 @@ const jsonLd = {
   name: site.company,
   alternateName: [site.name, site.shortName],
   description: site.description,
-  url: Astro.site?.toString(),
+  url: new URL(url('/'), Astro.site).toString(),
   telephone: site.hotline,
   email: site.email,
   taxID: site.taxCode,
@@ -45,7 +46,7 @@ const jsonLd = {
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
     <meta name="theme-color" content="#121d3a" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href={url('/favicon.svg')} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

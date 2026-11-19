@@ -2,6 +2,7 @@
 import Icon from '../Icon.astro';
 import SectionHead from '../SectionHead.astro';
 import { services } from '../../data/home';
+import { url } from '../../utils/url';
 ---
 
 <section class="sec" id="services">
@@ -31,7 +32,7 @@ import { services } from '../../data/home';
                   </li>
                 ))}
               </ul>
-              <a href={s.href} class="svc__link">
+              <a href={url(s.href)} class="svc__link">
                 Xem chi tiết <Icon name="arrow-right" />
               </a>
             </div>

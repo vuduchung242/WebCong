@@ -2,6 +2,7 @@
 import Icon from '../Icon.astro';
 import { stats, services } from '../../data/home';
 import { site } from '../../data/site';
+import { url } from '../../utils/url';
 ---
 
 <section class="hero" id="home">
@@ -51,7 +52,7 @@ import { site } from '../../data/site';
 
       <div class="hero__actions">
         <a href="#contact" class="btn btn--gold">Tư vấn miễn phí <Icon name="arrow-right" /></a>
-        <a href="/ve-czt.html" class="btn btn--ghost">Tìm hiểu về {site.name} <Icon name="arrow-right" /></a>
+        <a href={url('/ve-czt.html')} class="btn btn--ghost">Tìm hiểu về {site.name} <Icon name="arrow-right" /></a>
       </div>
     </div>
   </div>
@@ -61,7 +62,7 @@ import { site } from '../../data/site';
   <div class="hero-cards">
     {
       services.map((s) => (
-        <a href={s.href} class:list={['hero-card', `accent-${s.key}`]}>
+        <a href={url(s.href)} class:list={['hero-card', `accent-${s.key}`]}>
           <span class="hero-card__icon">
             <Icon name={s.icon} size={26} />
           </span>

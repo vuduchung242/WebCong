@@ -100,7 +100,11 @@ WebCong/
 - [ ] Kiểm tra Lighthouse (mục tiêu ≥ 90), test mobile
 
 ### Giai đoạn 4: Triển khai
-- [ ] `npm run build` → upload thư mục `dist/` lên hosting (hoặc nối Git với Netlify/Cloudflare Pages)
+- [x] GitHub Pages (bản test): https://vuduchung242.github.io/WebCong/
+  - Repo: https://github.com/vuduchung242/WebCong (public)
+  - Mỗi lần push lên `main`, workflow `.github/workflows/deploy.yml` tự build và đăng lại (1–2 phút)
+  - Site nằm trong thư mục con `/WebCong` → link nội bộ phải dùng `url('/...')` (`src/utils/url.ts`)
+- [ ] Bản chính thức: gắn tên miền riêng (đổi `site`, xoá `base` trong `astro.config.mjs`) hoặc upload `dist/` lên hosting
 
 ## 5. Lệnh thường dùng
 

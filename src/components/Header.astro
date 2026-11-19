@@ -2,9 +2,13 @@
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
 import { nav } from '../data/site';
+import { url } from '../utils/url';
 
 const path = Astro.url.pathname.replace(/\/index(\.html)?$/, '/');
-const isActive = (href: string) => (href === '/' ? path === '/' : path === href || path === href.replace('.html', ''));
+const isActive = (href: string) => {
+  const target = url(href);
+  return path === target || path === target.replace(/\.html$/, '') || path + '/' === target;
+};
 ---
 
 <header class="header" id="header">
@@ -19,12 +23,12 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path === href 
     <nav class="nav" id="nav" aria-label="Menu chính">
       {
         nav.map((item) => (
-          <a href={item.href} class:list={['nav__link', { 'is-active': isActive(item.href) }]}>
+          <a href={url(item.href)} class:list={['nav__link', { 'is-active': isActive(item.href) }]}>
             {item.label}
           </a>
         ))
       }
-      <a href="/#contact" class="btn btn--primary nav__cta">Tư vấn miễn phí</a>
+      <a href={url('/#contact')} class="btn btn--primary nav__cta">Tư vấn miễn phí</a>
     </nav>
   </div>
 </header>
