@@ -1,0 +1,98 @@
+---
+import Icon from '../Icon.astro';
+import SectionHead from '../SectionHead.astro';
+import { reviews } from '../../data/home';
+import { site } from '../../data/site';
+---
+
+<section class="sec sec--dark" id="testimonials">
+  <div class="container">
+    <SectionHead
+      tag="Khách hàng"
+      title="Khách hàng nói gì về"
+      highlight="CZT?"
+      sub="Những chia sẻ thực tế từ khách hàng đã sử dụng dịch vụ tại CZT."
+      light
+    />
+
+    <div class="reviews" data-carousel>
+      <div class="reviews__track" data-track tabindex="0" aria-label="Đánh giá của khách hàng">
+        {
+          reviews.map((r) => (
+            <figure class="review">
+              <div class="review__stars" aria-label="5 sao">★★★★★</div>
+              <blockquote class="review__text">“{r.text}”</blockquote>
+              <figcaption class="review__author">
+                <span class="review__avatar">{r.name.charAt(0)}</span>
+                <span>
+                  <span class="review__name">{r.name}</span>
+                  <span class="review__src">
+                    <Icon name="facebook" /> Đánh giá thực tế trên Facebook
+                  </span>
+                </span>
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+
+      <div class="reviews__nav">
+        <button class="reviews__arrow" type="button" data-prev aria-label="Đánh giá trước">
+          <Icon name="chevron-left" />
+        </button>
+        <a class="reviews__more" href={site.social.facebookReviews} target="_blank" rel="noopener">
+          Xem thêm đánh giá trên Facebook <Icon name="arrow-right" />
+        </a>
+        <button class="reviews__arrow" type="button" data-next aria-label="Đánh giá tiếp theo">
+          <Icon name="chevron-right" />
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Carousel: tự chạy mỗi 4 giây, quay về đầu khi tới cuối, dừng khi rê chuột/chạm.
+  // Vuốt trên điện thoại dùng cuộn ngang gốc của trình duyệt (scroll-snap).
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-track]')!;
+    const prev = root.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    const AUTOPLAY_MS = 4000;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const step = () => {
+      const card = track.firstElementChild as HTMLElement | null;
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      return card ? card.offsetWidth + gap : track.clientWidth;
+    };
+    const atEnd = () => track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+    const atStart = () => track.scrollLeft <= 4;
+
+    const go = (dir: 1 | -1) => {
+      if (dir === 1 && atEnd()) track.scrollTo({ left: 0 });
+      else if (dir === -1 && atStart()) track.scrollTo({ left: track.scrollWidth });
+      else track.scrollBy({ left: dir * step() });
+    };
+
+    let timer: number | undefined;
+    const stop = () => window.clearInterval(timer);
+    const start = () => {
+      stop();
+      if (!reduceMotion) timer = window.setInterval(() => go(1), AUTOPLAY_MS);
+    };
+
+    prev.addEventListener('click', () => { go(-1); start(); });
+    next.addEventListener('click', () => { go(1); start(); });
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', start);
+    track.addEventListener('touchstart', stop, { passive: true });
+    track.addEventListener('touchend', start);
+    track.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    });
+    // Chỉ chạy khi carousel nằm trong màn hình
+    new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop())).observe(root);
+  });
+</script>

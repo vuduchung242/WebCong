@@ -1,0 +1,51 @@
+---
+import Icon from '../Icon.astro';
+import SectionHead from '../SectionHead.astro';
+import { services } from '../../data/home';
+---
+
+<section class="sec" id="services">
+  <div class="container">
+    <SectionHead
+      tag="Dịch vụ"
+      title="Dịch vụ"
+      highlight="nổi bật"
+      sub="Giải pháp thiết thực cho hành trình sống và làm việc tại Nhật Bản."
+    />
+
+    <div class="svc-grid">
+      {
+        services.map((s) => (
+          <article class:list={['svc', 'reveal', `accent-${s.key}`]}>
+            <span class="svc__ic">
+              <Icon name={s.icon} size={30} />
+            </span>
+            <div class="svc__body">
+              <h3>{s.title}</h3>
+              <span class="svc__sub">{s.sub}</span>
+              <ul class="checks">
+                {s.points.map((p) => (
+                  <li>
+                    <Icon name="check-circle" />
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+              <a href={s.href} class="svc__link">
+                Xem chi tiết <Icon name="arrow-right" />
+              </a>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="cta-band reveal">
+      <div>
+        <h3>Chưa biết hồ sơ của mình phù hợp với dịch vụ nào?</h3>
+        <p>Để lại thông tin, CZT sẽ kiểm tra và tư vấn miễn phí.</p>
+      </div>
+      <a href="#contact" class="btn btn--gold">Tư vấn miễn phí <Icon name="arrow-right" /></a>
+    </div>
+  </div>
+</section>

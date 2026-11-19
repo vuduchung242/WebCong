@@ -1,0 +1,18 @@
+---
+// Tiêu đề section. Phần `highlight` được tô màu + gạch chân vàng.
+interface Props {
+  tag: string;
+  title: string;
+  highlight?: string;
+  sub?: string;
+  light?: boolean;
+  as?: 'h1' | 'h2';
+}
+const { tag, title, highlight, sub, light = false, as: Tag = 'h2' } = Astro.props;
+---
+
+<div class:list={['sec-head', 'reveal', { 'sec-head--light': light }]}>
+  <span class="sec-head__tag">{tag}</span>
+  <Tag class="sec-head__title">{title}{highlight && ' '}{highlight && <em>{highlight}</em>}</Tag>
+  {sub && <p class="sec-head__sub">{sub}</p>}
+</div>

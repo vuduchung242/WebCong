@@ -1,0 +1,25 @@
+---
+import Icon from '../Icon.astro';
+import SectionHead from '../SectionHead.astro';
+import { reasons } from '../../data/home';
+---
+
+<section class="sec sec--dark" id="why">
+  <div class="container">
+    <SectionHead tag="Vì sao chọn CZT" title="Vì sao khách hàng lựa chọn" highlight="CZT?" light />
+
+    <div class="why-grid">
+      {
+        reasons.map((r) => (
+          <div class="why reveal">
+            <span class="why__ic">
+              <Icon name={r.icon} size={26} />
+            </span>
+            <h3>{r.title}</h3>
+            <p>{r.text}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

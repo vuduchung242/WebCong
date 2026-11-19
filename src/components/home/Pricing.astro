@@ -1,0 +1,65 @@
+---
+import Icon from '../Icon.astro';
+import SectionHead from '../SectionHead.astro';
+import { prices, priceNotes } from '../../data/home';
+---
+
+<section class="sec" id="pricing">
+  <div class="container">
+    <SectionHead
+      tag="Bảng giá"
+      title="Bảng giá"
+      highlight="dịch vụ"
+      sub="Chi phí tham khảo — CZT sẽ xác nhận mức phí sau khi kiểm tra hồ sơ."
+    />
+
+    <div class="price-wrap reveal">
+      <table class="price-table">
+        <thead>
+          <tr>
+            <th scope="col">Dịch vụ</th>
+            <th scope="col">Chi phí tham khảo</th>
+            <th scope="col">Thời gian dự kiến</th>
+            <th scope="col"><span class="sr-only">Tư vấn</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            prices.map((p) => (
+              <tr>
+                <td class="price-table__svc" data-label="Dịch vụ">
+                  {p.service}
+                  {p.featured && (
+                    <span class="badge">
+                      <Icon name="crown" />
+                      Nổi bật
+                    </span>
+                  )}
+                </td>
+                <td class="price-table__price" data-label="Chi phí tham khảo">
+                  {p.price}
+                </td>
+                <td class="price-table__time" data-label="Thời gian dự kiến">
+                  <div>
+                    {p.time.map((t) => (
+                      <span>{t}</span>
+                    ))}
+                  </div>
+                </td>
+                <td>
+                  <a class="price-table__btn" href="#contact">
+                    Tư vấn <Icon name="chevron-right" strokeWidth={2.6} />
+                  </a>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="price-notes">
+      {priceNotes.map((n) => <p>* {n}</p>)}
+    </div>
+  </div>
+</section>

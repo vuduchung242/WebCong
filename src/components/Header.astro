@@ -1,0 +1,57 @@
+---
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import { nav } from '../data/site';
+
+const path = Astro.url.pathname.replace(/\/index(\.html)?$/, '/');
+const isActive = (href: string) => (href === '/' ? path === '/' : path === href || path === href.replace('.html', ''));
+---
+
+<header class="header" id="header">
+  <div class="container header__inner">
+    <Logo />
+
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="nav">
+      <Icon name="menu" class="icon-menu" size={26} />
+      <Icon name="close" class="icon-close" size={26} />
+    </button>
+
+    <nav class="nav" id="nav" aria-label="Menu chính">
+      {
+        nav.map((item) => (
+          <a href={item.href} class:list={['nav__link', { 'is-active': isActive(item.href) }]}>
+            {item.label}
+          </a>
+        ))
+      }
+      <a href="/#contact" class="btn btn--primary nav__cta">Tư vấn miễn phí</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.getElementById('header')!;
+  const toggle = document.getElementById('navToggle')!;
+  const nav = document.getElementById('nav')!;
+
+  // Đổ bóng header khi cuộn
+  const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 10);
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Menu mobile
+  const setOpen = (open: boolean) => {
+    nav.classList.toggle('is-open', open);
+    toggle.classList.toggle('is-active', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
+  };
+  toggle.addEventListener('click', () => setOpen(!nav.classList.contains('is-open')));
+  nav.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('click', (e) => {
+    if (nav.classList.contains('is-open') && !header.contains(e.target as Node)) setOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+</script>
