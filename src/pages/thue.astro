@@ -1,0 +1,11 @@
+---
+// Nội dung trang nằm trong src/partials/thue.*.html
+import SiteLayout from '../layouts/SiteLayout.astro';
+import head from '../partials/thue.head.html?raw';
+import main from '../partials/thue.main.html?raw';
+import scripts from '../partials/thue.scripts.html?raw';
+---
+
+<SiteLayout head={head} bodyClass="tx-page" active="thue.html" scripts={scripts}>
+  <Fragment set:html={main} />
+</SiteLayout>

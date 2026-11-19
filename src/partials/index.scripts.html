@@ -1,0 +1,10 @@
+<script>
+/* Nút ‹ › cuộn dải đánh giá khách hàng đúng 1 thẻ */
+document.querySelectorAll('.hm-reviews__arrow').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var track = document.getElementById('hmReviews');
+    var card = track.querySelector('.hm-review');
+    track.scrollBy({ left: +btn.dataset.dir * (card.offsetWidth + 20), behavior: 'smooth' });
+  });
+});
+</script>

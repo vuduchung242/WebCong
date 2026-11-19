@@ -1,0 +1,457 @@
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ---------- Footer year ---------- */
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  /* ---------- Sticky header shadow ---------- */
+  const header = document.getElementById('header');
+  const onScroll = () => {
+    if (window.scrollY > 10) header.classList.add('is-scrolled');
+    else header.classList.remove('is-scrolled');
+
+    const backToTop = document.getElementById('backToTop');
+    if (backToTop) {
+      if (window.scrollY > 500) backToTop.classList.add('is-visible');
+      else backToTop.classList.remove('is-visible');
+    }
+  };
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ---------- Mobile nav toggle ---------- */
+  const navToggle = document.getElementById('navToggle');
+  const nav = document.getElementById('nav');
+  if (navToggle && nav) {
+    navToggle.addEventListener('click', () => {
+      nav.classList.toggle('is-open');
+      navToggle.classList.toggle('is-active');
+    });
+
+    // Toggle dropdown submenu on mobile tap
+    document.querySelectorAll('.has-dropdown > a').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        if (window.innerWidth <= 860) {
+          e.preventDefault();
+          link.parentElement.classList.toggle('is-open');
+        }
+      });
+    });
+
+    // Close mobile nav after clicking a real link (skip dropdown toggle links)
+    nav.querySelectorAll('a').forEach((link) => {
+      if (link.parentElement.classList.contains('has-dropdown')) return;
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 860) {
+          nav.classList.remove('is-open');
+          navToggle.classList.remove('is-active');
+        }
+      });
+    });
+  }
+
+  /* ---------- Back to top ---------- */
+  const backToTop = document.getElementById('backToTop');
+  if (backToTop) {
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  /* ---------- FAQ accordion ---------- */
+  document.querySelectorAll('.accordion__item').forEach((item) => {
+    const head = item.querySelector('.accordion__head');
+    head.addEventListener('click', () => {
+      const isOpen = item.classList.contains('is-open');
+      item.closest('.accordion').querySelectorAll('.accordion__item').forEach((el) => el.classList.remove('is-open'));
+      if (!isOpen) item.classList.add('is-open');
+    });
+  });
+
+  /* ---------- Testimonials slider (auto-scroll + loop) ---------- */
+  const track = document.getElementById('testimonials-track');
+  const prevBtn = document.getElementById('testiPrev');
+  const nextBtn = document.getElementById('testiNext');
+  if (track && prevBtn && nextBtn) {
+    const AUTOPLAY_MS = 4000;
+    let autoplayTimer = null;
+
+    const cardStep = () => {
+      const card = track.querySelector('.testimonial');
+      if (!card) return 0;
+      const gap = 24;
+      return card.offsetWidth + gap;
+    };
+
+    const atEnd = () => track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+
+    const scrollByCard = (dir) => {
+      const distance = cardStep();
+      if (!distance) return;
+      if (dir > 0 && atEnd()) {
+        track.scrollTo({ left: 0, behavior: 'smooth' });
+        return;
+      }
+      if (dir < 0 && track.scrollLeft <= 2) {
+        track.scrollTo({ left: track.scrollWidth, behavior: 'smooth' });
+        return;
+      }
+      track.scrollBy({ left: dir * distance, behavior: 'smooth' });
+    };
+
+    const stopAutoplay = () => {
+      if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+      }
+    };
+    const startAutoplay = () => {
+      stopAutoplay();
+      autoplayTimer = setInterval(() => scrollByCard(1), AUTOPLAY_MS);
+    };
+    const restartAutoplay = () => { stopAutoplay(); startAutoplay(); };
+
+    prevBtn.addEventListener('click', () => { scrollByCard(-1); restartAutoplay(); });
+    nextBtn.addEventListener('click', () => { scrollByCard(1); restartAutoplay(); });
+
+    track.addEventListener('mouseenter', stopAutoplay);
+    track.addEventListener('mouseleave', startAutoplay);
+    track.addEventListener('touchstart', stopAutoplay, { passive: true });
+    track.addEventListener('touchend', startAutoplay, { passive: true });
+
+    startAutoplay();
+  }
+
+  /* ---------- Booking form ---------- */
+  const bookingForm = document.getElementById('bookingForm');
+  const formNote = document.getElementById('formNote');
+  if (bookingForm && formNote) {
+    bookingForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const data = new FormData(bookingForm);
+      const fullname = (data.get('fullname') || '').toString().trim();
+      const phone = (data.get('phone') || '').toString().trim();
+
+      if (!fullname || !phone) {
+        formNote.textContent = 'Vui lòng nhập đầy đủ Họ tên và Số điện thoại.';
+        formNote.className = 'form-note error';
+        return;
+      }
+
+      const phonePattern = /^[0-9+()\s-]{8,15}$/;
+      if (!phonePattern.test(phone)) {
+        formNote.textContent = 'Số điện thoại không hợp lệ, vui lòng kiểm tra lại.';
+        formNote.className = 'form-note error';
+        return;
+      }
+
+      // NOTE: Chưa có backend nhận dữ liệu.
+      // Có thể tích hợp Formspree, Google Apps Script, hoặc API riêng tại đây.
+      // Ví dụ: fetch('https://formspree.io/f/xxxxxx', { method: 'POST', body: data });
+
+      formNote.textContent = 'Cảm ơn bạn! CZT đã nhận thông tin và sẽ liên hệ trong vòng 24h.';
+      formNote.className = 'form-note success';
+      bookingForm.reset();
+    });
+  }
+
+  /* ---------- Close mobile dropdown on outside click ---------- */
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll('.has-dropdown.is-open').forEach((el) => {
+      if (!el.contains(e.target)) el.classList.remove('is-open');
+    });
+  });
+
+  /* ---------- Nenkin: modal xem mẫu giấy tờ ---------- */
+  const docModal = document.getElementById('docModal');
+  const docModalBody = document.getElementById('docModalBody');
+  const docModalTitle = document.getElementById('docModalTitle');
+  const docModalClose = document.getElementById('docModalClose');
+  const docModalBackdrop = document.querySelector('.doc-modal__backdrop');
+
+  const openDocModal = (images = [], labels = [], title = 'Mẫu giấy tờ') => {
+    if (!docModal || !docModalBody) return;
+
+    if (docModalTitle) docModalTitle.textContent = title;
+    docModalBody.innerHTML = '';
+    images.forEach((src, index) => {
+      const item = document.createElement('figure');
+      item.className = 'doc-modal__item';
+
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = labels[index] || `Mẫu ${index + 1}`;
+      img.loading = 'lazy';
+
+      const caption = document.createElement('figcaption');
+      caption.textContent = labels[index] || `Mẫu ${index + 1}`;
+
+      item.appendChild(img);
+      item.appendChild(caption);
+      docModalBody.appendChild(item);
+    });
+
+    docModal.hidden = false;
+    document.body.classList.add('is-modal-open');
+  };
+
+  const closeDocModal = () => {
+    if (!docModal) return;
+    docModal.hidden = true;
+    document.body.classList.remove('is-modal-open');
+  };
+
+  document.querySelectorAll('[data-doc-images]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const images = JSON.parse(button.getAttribute('data-doc-images') || '[]');
+      const labels = JSON.parse(button.getAttribute('data-doc-labels') || '[]');
+      const title = button.getAttribute('data-doc-title') || labels[0] || 'Mẫu giấy tờ';
+      if (images.length) openDocModal(images, labels, title);
+    });
+  });
+
+  if (docModalClose) docModalClose.addEventListener('click', closeDocModal);
+  if (docModalBackdrop) docModalBackdrop.addEventListener('click', closeDocModal);
+  document.addEventListener('keydown', (event) => {
+    if (!docModal || docModal.hidden) return;
+    if (event.key === 'Escape') closeDocModal();
+  });
+
+  /* ---------- Nenkin: tính số tiền dự kiến ---------- */
+  const nkCalcBtn = document.getElementById('nkCalcBtn');
+  if (nkCalcBtn) {
+    nkCalcBtn.addEventListener('click', () => {
+      const months = parseInt(document.getElementById('nkMonths').value, 10);
+      const salary = parseInt(document.getElementById('nkSalary').value, 10);
+      const resultEl = document.getElementById('nkResult');
+      const placeholderEl = document.getElementById('nkPlaceholder');
+
+      if (!months || !salary || months < 6) {
+        alert('Vui lòng nhập số tháng đóng Nenkin (tối thiểu 6 tháng) và mức lương trung bình.');
+        return;
+      }
+
+      // Hệ số theo bảng của Cơ quan Nenkin (脱退一時金): số tháng đóng -> hệ số nhân với lương trung bình chưa trừ.
+      // Tổng số tiền dự kiến (100%) = Mức lương trung bình chưa trừ x hệ số.
+      const coefFor = (m) => {
+        if (m < 6) return 0;
+        if (m < 12) return 0.5;
+        if (m < 18) return 1.1;
+        if (m < 24) return 1.6;
+        if (m < 30) return 2.2;
+        if (m < 36) return 2.7;
+        if (m < 42) return 3.3;
+        if (m < 48) return 3.8;
+        if (m < 54) return 4.4;
+        if (m < 60) return 4.9;
+        return 5.5; // trên 60 tháng
+      };
+
+      // Tổng (100%) được chia làm 2 lần nhận:
+      // - Nenkin lần 1 (79.58%): Cơ quan Nenkin chi trả sau khi đã giữ lại 20.42% thuế.
+      // - Nenkin lần 2 (20.42%): phần thuế đã giữ lại, được hoàn lại sau khi CZT nộp hồ sơ khai thuế.
+      const total = Math.round(salary * coefFor(months));
+      const nenkin1 = Math.round(total * 0.7958);
+      const nenkin2 = total - nenkin1;
+
+      const fmt = (n) => n.toLocaleString('ja-JP') + '\u00A0円';
+      document.getElementById('nkOut1').textContent = fmt(nenkin1);
+      document.getElementById('nkOut2').textContent = fmt(nenkin2);
+      document.getElementById('nkOut3').textContent = fmt(total);
+      if (placeholderEl) placeholderEl.hidden = true;
+      resultEl.hidden = false;
+    });
+  }
+
+  /* ---------- Nenkin: tra cứu tình trạng hồ sơ ---------- */
+  // Cách thiết lập (an toàn hơn CSV công khai — xem noi-bo/google-apps-script-tra-cuu.gs):
+  // 1. Tạo Google Sheet với 2 cột "ma_ho_so" và "trang_thai".
+  // 2. Dán code trong file noi-bo/google-apps-script-tra-cuu.gs vào Apps Script của sheet đó.
+  // 3. Deploy dạng Web app (Execute as: Me, Who has access: Anyone).
+  // 4. Dán link "Web app URL" vào biến NENKIN_LOOKUP_API_URL bên dưới.
+  // Apps Script chỉ trả về đúng 1 dòng khớp mã hồ sơ được hỏi, không lộ toàn bộ danh sách khách hàng.
+  const NENKIN_LOOKUP_API_URL = 'https://script.google.com/macros/s/AKfycbyiNJZSoA-cYv6RbWoSBFiOyaag9tZXp6ijgxq-palTi3s9TiAo_DGf-oPScQg0aeYn/exec'; // TODO: dán link Apps Script Web app URL vào đây
+
+  // 6 trạng thái gõ trong cột trang_thai của Google Sheet (đúng thứ tự trên trang).
+  // So khớp bỏ qua hoa/thường, khoảng trắng thừa, emoji (VD "Hoàn tất hồ sơ ✅") và kiểu mã hoá dấu.
+  const NENKIN_STATUS_STEPS = [
+    'Đã nộp hồ sơ',
+    'Đang xét duyệt lần 1',
+    'Có kết quả lần 1',
+    'Đang xét duyệt lần 2',
+    'Có kết quả lần 2',
+    'Hoàn tất hồ sơ',
+  ];
+  const normStatus = (v) => String(v || '').normalize('NFC').replace(/[^\p{L}\p{N} ]/gu, '').replace(/\s+/g, ' ').trim().toLowerCase();
+
+  const nkLookupBtn = document.getElementById('nkLookupBtn');
+  if (nkLookupBtn) {
+    nkLookupBtn.addEventListener('click', async () => {
+      const code = document.getElementById('nkLookupCode').value.trim();
+      const msgEl = document.getElementById('nkLookupMsg');
+
+      // Stepper "Quy trình xử lý hồ sơ" khớp đúng thứ tự NENKIN_STATUS_STEPS (6 trạng thái)
+      const steps = document.querySelectorAll('.nn-step');
+      // dates: mảng 6 ngày "dd/MM/yyyy" do Apps Script trả về (ô trống = '')
+      const setStepper = (idx, dates) => {
+        steps.forEach((el, i) => {
+          el.classList.remove('is-done', 'is-active');
+          let dateEl = el.querySelector('.nn-step__date');
+          const d = (dates && dates[i]) || '';
+          if (d) {
+            if (!dateEl) { dateEl = document.createElement('span'); dateEl.className = 'nn-step__date'; el.appendChild(dateEl); }
+            // "dd/MM/yyyy" -> 2 dòng nhỏ (ngày/tháng + năm) để vừa cột hẹp, không đè sang bước bên cạnh
+            const m = d.match(/^(\d{1,2}\/\d{1,2})\/(\d{4})$/);
+            dateEl.innerHTML = '';
+            if (m) {
+              const dm = document.createElement('span'); dm.className = 'nn-step__dm'; dm.textContent = m[1];
+              const yy = document.createElement('span'); yy.className = 'nn-step__yy'; yy.textContent = m[2];
+              dateEl.append(dm, yy);
+            } else dateEl.textContent = d;
+            dateEl.title = d;
+          } else if (dateEl) dateEl.remove();
+          if (idx < 0) return;
+          if (i < idx) el.classList.add('is-done');
+          else if (i === idx) el.classList.add('is-active');
+        });
+      };
+
+      msgEl.hidden = false;
+      if (!code) { setStepper(-1); msgEl.textContent = 'Vui lòng nhập mã hồ sơ.'; return; }
+      if (!NENKIN_LOOKUP_API_URL) {
+        msgEl.textContent = 'Chức năng tra cứu đang được thiết lập. Vui lòng liên hệ CZT qua Zalo/Messenger để biết tình trạng hồ sơ.';
+        return;
+      }
+
+      msgEl.textContent = 'Đang tra cứu...';
+      try {
+        const url = NENKIN_LOOKUP_API_URL + '?ma_ho_so=' + encodeURIComponent(code) + '&_=' + Date.now();
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.found) {
+          msgEl.textContent = 'Không tìm thấy hồ sơ với mã này. Vui lòng kiểm tra lại hoặc liên hệ CZT.';
+          setStepper(-1);
+          return;
+        }
+
+        const currentStatus = data.trang_thai;
+        const idx = NENKIN_STATUS_STEPS.findIndex((st) => normStatus(st) === normStatus(currentStatus));
+        setStepper(idx, data.ngay);
+        const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        // chip màu theo từng trạng thái (giống màu nhãn trong Google Sheet)
+        msgEl.innerHTML = '<span>Mã <strong>' + esc(code.toUpperCase()) + '</strong> — Trạng thái hiện tại:</span><span class="nn-chip nn-chip--' + (idx + 1) + '">' + esc(currentStatus) + '</span>'
+          + (idx >= 0 && data.ngay && data.ngay[idx] ? '<span class="nn-lookup__date">· cập nhật ngày <strong>' + esc(data.ngay[idx]) + '</strong></span>' : '');
+      } catch (err) {
+        setStepper(-1);
+        msgEl.textContent = 'Có lỗi khi tra cứu. Vui lòng thử lại sau hoặc liên hệ CZT.';
+      }
+    });
+  }
+
+  /* ---------- Lightbox: phóng to ảnh hồ sơ ---------- */
+  const docImgs = document.querySelectorAll('.doc-grid--photos .doc-card__img img');
+  if (docImgs.length) {
+    const box = document.createElement('div');
+    box.className = 'img-lightbox';
+    box.innerHTML =
+      '<button class="img-lightbox__close" aria-label="Đóng">✕</button>' +
+      '<div class="img-lightbox__inner"><img alt=""><p class="img-lightbox__cap"></p></div>';
+    document.body.appendChild(box);
+    const boxImg = box.querySelector('img');
+    const boxCap = box.querySelector('.img-lightbox__cap');
+
+    const closeBox = () => {
+      box.classList.remove('is-open');
+      document.body.style.overflow = '';
+    };
+
+    docImgs.forEach((img) => {
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', () => {
+        const card = img.closest('.doc-card');
+        const label = card && card.querySelector('.doc-card__label')
+          ? card.querySelector('.doc-card__label').textContent.trim()
+          : '';
+        boxImg.src = img.currentSrc || img.src;
+        boxCap.textContent = label;
+        box.classList.add('is-open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    box.addEventListener('click', (e) => {
+      if (e.target === box || e.target.closest('.img-lightbox__close')) closeBox();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && box.classList.contains('is-open')) closeBox();
+    });
+  }
+
+});
+
+/* ---------- Carousel vòng lặp vô hạn (đánh giá / feedback / hồ sơ ở mọi trang) ----------
+   Nhân bản toàn bộ thẻ ra 2 bên (trước + sau). Khi cuộn/next tới vùng bản sao thì âm thầm
+   nhảy về vị trí tương ứng của bộ thẻ gốc -> bấm › hoặc vuốt mãi không bao giờ dừng.
+   Ảnh được nạp bất đồng bộ nên chờ danh sách thẻ ổn định rồi mới dựng vòng lặp. */
+(function () {
+  const SEL = '.vs-carousel__track, .tx-carousel__track, .nn-carousel__track, #hmReviews';
+  const originals = (t) => [...t.children].filter((el) => !el.classList.contains('is-clone'));
+
+  function build(track) {
+    track.querySelectorAll('.is-clone').forEach((el) => el.remove());
+    const items = originals(track);
+    track._loop = null;
+    if (items.length < 2) return;
+    const mk = (el) => { const c = el.cloneNode(true); c.classList.add('is-clone'); c.setAttribute('aria-hidden', 'true'); return c; };
+    const before = document.createDocumentFragment();
+    const after = document.createDocumentFragment();
+    items.forEach((el) => { before.appendChild(mk(el)); after.appendChild(mk(el)); });
+    track.insertBefore(before, items[0]);
+    track.appendChild(after);
+    const measure = () => {
+      const first = items[0];
+      const firstAfter = items[items.length - 1].nextElementSibling;
+      track._loop = { start: first.offsetLeft - track.offsetLeft, width: firstAfter.offsetLeft - first.offsetLeft };
+    };
+    measure();
+    jump(track, track._loop.start);
+    track._loopMeasure = measure;
+  }
+
+  function jump(track, left) {
+    const snap = track.style.scrollSnapType;
+    track.style.scrollSnapType = 'none';
+    track.style.scrollBehavior = 'auto';
+    track.scrollLeft = left;
+    // trả lại snap ở frame sau để không bị giật
+    setTimeout(() => { track.style.scrollSnapType = snap; track.style.scrollBehavior = ''; }, 30);
+  }
+
+  function wrap(track) {
+    const L = track._loop; if (!L || !L.width) return;
+    const x = track.scrollLeft;
+    // luôn đưa vị trí về dải của bộ thẻ gốc [start, start + width)
+    if (x < L.start - 1) jump(track, x + L.width);
+    else if (x >= L.start + L.width - 1) jump(track, x - L.width);
+  }
+
+  function init(track) {
+    if (track._loopInit) return; track._loopInit = true;
+    let settle;
+    const schedule = () => { clearTimeout(settle); settle = setTimeout(() => build(track), 500); };
+    // chỉ dựng lại khi danh sách thẻ GỐC thay đổi (ảnh mới nạp xong), bỏ qua thay đổi do chính bản sao
+    const mo = new MutationObserver((muts) => {
+      if (muts.some((m) => [...m.addedNodes, ...m.removedNodes].some((n) => n.nodeType === 1 && !n.classList.contains('is-clone')))) schedule();
+    });
+    mo.observe(track, { childList: true });
+    schedule();
+    let t;
+    track.addEventListener('scroll', () => { clearTimeout(t); t = setTimeout(() => wrap(track), 120); }, { passive: true });
+    window.addEventListener('resize', () => { if (track._loopMeasure) { const off = track.scrollLeft - track._loop.start; track._loopMeasure(); jump(track, track._loop.start + ((off % track._loop.width) + track._loop.width) % track._loop.width); } });
+  }
+
+  const run = () => document.querySelectorAll(SEL).forEach(init);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();

@@ -1,0 +1,56 @@
+<script>
+/* Nenkin: nút "Xem ảnh mẫu" mở ảnh phóng to; carousel đánh giá (nạp fb-1..40, nút ‹ ›, nhấn để phóng to) */
+(function () {
+  /* phóng to ảnh: dùng chung cho ảnh mẫu giấy tờ và ảnh đánh giá */
+  function zoom(src) {
+    var box = document.createElement('div');
+    box.className = 'img-lightbox is-open';
+    // src có thể là 1 ảnh hoặc mảng nhiều ảnh (mục 5: Vietcombank + Vietinbank) -> hiện cạnh nhau
+    var list = [].concat(src);
+    box.innerHTML = '<button class="img-lightbox__close" aria-label="Đóng">✕</button><div class="img-lightbox__inner' + (list.length > 1 ? ' img-lightbox__inner--multi' : '') + '"></div>';
+    list.forEach(function (u) { var im = document.createElement('img'); im.alt = ''; im.src = u; box.querySelector('.img-lightbox__inner').appendChild(im); });
+    var close = function () { box.remove(); document.body.style.overflow = ''; document.removeEventListener('keydown', onKey); };
+    var onKey = function (ev) { if (ev.key === 'Escape') close(); };
+    box.addEventListener('click', function (ev) { if (ev.target === box || ev.target.closest('.img-lightbox__close')) close(); });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(box); document.body.style.overflow = 'hidden';
+  }
+  document.querySelectorAll('.nn-doc').forEach(function (card) {
+    var imgs = card.querySelectorAll('.nn-doc__img img');
+    imgs.forEach(function (img) { img.addEventListener('click', function () { zoom(img.currentSrc || img.src); }); });
+    card.querySelector('.nn-doc__btn').addEventListener('click', function () { zoom([].map.call(imgs, function (im) { return im.currentSrc || im.src; })); });
+  });
+  var EXTS = ['jpg', 'jpeg', 'png', 'webp'], MAX = 40;
+  function tryLoad(base, i, cb) {
+    if (i >= EXTS.length) return cb(null);
+    var img = new Image(), url = base + '.' + EXTS[i];
+    img.onload = function () { cb(url); };
+    img.onerror = function () { tryLoad(base, i + 1, cb); };
+    img.src = url;
+  }
+  document.querySelectorAll('[data-nn-gallery]').forEach(function (box) {
+    var prefix = box.getAttribute('data-prefix'), alt = box.getAttribute('data-alt') || '';
+    for (var n = 1; n <= MAX; n++) (function (idx) {
+      tryLoad(prefix + idx, 0, function (url) {
+        if (!url) return;
+        var fig = document.createElement('figure');
+        fig.className = 'nn-slide'; fig.dataset.idx = idx;
+        fig.innerHTML = '<img loading="lazy" alt="">';
+        fig.firstChild.src = url; fig.firstChild.alt = alt;
+        var after = null;
+        box.querySelectorAll('.nn-slide').forEach(function (el) { if (!after && +el.dataset.idx > idx) after = el; });
+        box.insertBefore(fig, after);
+      });
+    })(n);
+  });
+  document.querySelectorAll('.nn-carousel').forEach(function (car) {
+    var track = car.querySelector('.nn-carousel__track');
+    var step = function () { var s = track.querySelector('.nn-slide'); return s ? s.offsetWidth + 18 : track.clientWidth; };
+    car.querySelector('.nn-carousel__arrow--prev').addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
+    car.querySelector('.nn-carousel__arrow--next').addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); });
+    track.addEventListener('click', function (e) {
+      var img = e.target.closest('.nn-slide img'); if (img) zoom(img.currentSrc || img.src);
+    });
+  });
+})();
+</script>

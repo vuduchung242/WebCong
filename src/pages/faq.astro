@@ -1,0 +1,11 @@
+---
+// Nội dung trang nằm trong src/partials/faq.*.html
+import SiteLayout from '../layouts/SiteLayout.astro';
+import head from '../partials/faq.head.html?raw';
+import main from '../partials/faq.main.html?raw';
+import scripts from '../partials/faq.scripts.html?raw';
+---
+
+<SiteLayout head={head} bodyClass="fq-page" active="faq.html" scripts={scripts}>
+  <Fragment set:html={main} />
+</SiteLayout>

@@ -1,0 +1,48 @@
+<script>
+/* Thuế: nạp ảnh <prefix>1..40 theo đúng thứ tự số, rồi gắn nút ‹ › và phóng to ảnh */
+(function () {
+  var EXTS = ['jpg', 'jpeg', 'png', 'webp'], MAX = 40;
+  function tryLoad(base, i, cb) {
+    if (i >= EXTS.length) return cb(null);
+    var img = new Image();
+    var url = base + '.' + EXTS[i] + '?v=20260923c'; // đổi khi thay ảnh để trình duyệt tải lại
+    img.onload = function () { cb(url); };
+    img.onerror = function () { tryLoad(base, i + 1, cb); };
+    img.src = url;
+  }
+  document.querySelectorAll('.tx-carousel__track[data-gallery]').forEach(function (box) {
+    var prefix = box.getAttribute('data-prefix'), alt = box.getAttribute('data-alt') || '';
+    for (var n = 1; n <= MAX; n++) (function (idx) {
+      tryLoad(prefix + idx, 0, function (url) {
+        if (!url) return;
+        var fig = document.createElement('figure');
+        fig.className = 'tx-slide'; fig.dataset.idx = idx;
+        fig.innerHTML = '<img loading="lazy" alt="">';
+        fig.firstChild.src = url; fig.firstChild.alt = alt;
+        var after = null;
+        box.querySelectorAll('.tx-slide').forEach(function (el) { if (!after && +el.dataset.idx > idx) after = el; });
+        box.insertBefore(fig, after);
+      });
+    })(n);
+  });
+
+  document.querySelectorAll('.tx-carousel').forEach(function (car) {
+    var track = car.querySelector('.tx-carousel__track');
+    var step = function () { var s = track.querySelector('.tx-slide'); return s ? s.offsetWidth + 18 : track.clientWidth; };
+    car.querySelector('.tx-carousel__arrow--prev').addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
+    car.querySelector('.tx-carousel__arrow--next').addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); });
+    track.addEventListener('click', function (e) {
+      var img = e.target.closest('.tx-slide img'); if (!img) return;
+      var box = document.createElement('div');
+      box.className = 'img-lightbox is-open';
+      box.innerHTML = '<button class="img-lightbox__close" aria-label="Đóng">✕</button><div class="img-lightbox__inner"><img alt=""></div>';
+      box.querySelector('img').src = img.currentSrc || img.src;
+      var close = function () { box.remove(); document.body.style.overflow = ''; document.removeEventListener('keydown', onKey); };
+      var onKey = function (ev) { if (ev.key === 'Escape') close(); };
+      box.addEventListener('click', function (ev) { if (ev.target === box || ev.target.closest('.img-lightbox__close')) close(); });
+      document.addEventListener('keydown', onKey);
+      document.body.appendChild(box); document.body.style.overflow = 'hidden';
+    });
+  });
+})();
+</script>

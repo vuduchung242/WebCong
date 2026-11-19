@@ -1,61 +1,38 @@
 ---
-import Icon from './Icon.astro';
-import Logo from './Logo.astro';
-import { nav } from '../data/site';
-import { url } from '../utils/url';
-
-const path = Astro.url.pathname.replace(/\/index(\.html)?$/, '/');
-const isActive = (href: string) => {
-  const target = url(href);
-  return path === target || path === target.replace(/\.html$/, '') || path + '/' === target;
-};
+// Header dùng chung. `active`: tên file trang hiện tại (VD 'nenkin.html') để tô menu.
+interface Props { active?: string; isHome?: boolean }
+const { active = '', isHome = false } = Astro.props;
+const contactHref = isHome ? '#contact' : 'index.html#contact';
 ---
 
 <header class="header" id="header">
   <div class="container header__inner">
-    <Logo />
+    <a href="index.html" class="logo">
+      <img src="assets/logos/czt-logo-2026.png" alt="CZT - CZT International Service" class="logo__img">
+      <span class="logo__text">
+        <strong>CÔNG TY TNHH DỊCH VỤ QUỐC TẾ CZT</strong>
+        <small>Tận tâm trong từng bước – Tin cậy trong từng dịch vụ.</small>
+        <em class="logo__brand">Cô Záo Trang</em>
+      </span>
+    </a>
 
-    <button class="nav-toggle" id="navToggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="nav">
-      <Icon name="menu" class="icon-menu" size={26} />
-      <Icon name="close" class="icon-close" size={26} />
-    </button>
-
-    <nav class="nav" id="nav" aria-label="Menu chính">
-      {
-        nav.map((item) => (
-          <a href={url(item.href)} class:list={['nav__link', { 'is-active': isActive(item.href) }]}>
-            {item.label}
-          </a>
-        ))
-      }
-      <a href={url('/#contact')} class="btn btn--primary nav__cta">Tư vấn miễn phí</a>
+    <nav class="nav" id="nav">
+      <ul>
+        <li><a href="index.html" class={active === 'index.html' ? 'is-active' : undefined}>Trang chủ</a></li>
+        <li><a href="nenkin.html" class={active === 'nenkin.html' ? 'is-active' : undefined}>Nenkin</a></li>
+        <li><a href="visa.html" class={active === 'visa.html' ? 'is-active' : undefined}>Visa</a></li>
+        <li><a href="thue.html" class={active === 'thue.html' ? 'is-active' : undefined}>Thuế</a></li>
+        <li><a href="dich-vu-khac.html" class={active === 'dich-vu-khac.html' ? 'is-active' : undefined}>Dịch vụ khác</a></li>
+        <li><a href="ve-czt.html" class={active === 've-czt.html' ? 'is-active' : undefined}>Về CZT</a></li>
+        <li><a href="faq.html" class={active === 'faq.html' ? 'is-active' : undefined}>FAQ</a></li>
+      </ul>
     </nav>
+
+    <div class="header__cta">
+      <a href={contactHref} class="btn btn--primary">Tư vấn miễn phí</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Mở menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
 </header>
-
-<script>
-  const header = document.getElementById('header')!;
-  const toggle = document.getElementById('navToggle')!;
-  const nav = document.getElementById('nav')!;
-
-  // Đổ bóng header khi cuộn
-  const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 10);
-  document.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
-  // Menu mobile
-  const setOpen = (open: boolean) => {
-    nav.classList.toggle('is-open', open);
-    toggle.classList.toggle('is-active', open);
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
-  };
-  toggle.addEventListener('click', () => setOpen(!nav.classList.contains('is-open')));
-  nav.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
-  document.addEventListener('click', (e) => {
-    if (nav.classList.contains('is-open') && !header.contains(e.target as Node)) setOpen(false);
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') setOpen(false);
-  });
-</script>

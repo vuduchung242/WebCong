@@ -1,0 +1,54 @@
+---
+// Khung chung cho mọi trang: <head>, header, nút nổi, footer, script.js.
+// Nội dung riêng từng trang nằm ở src/partials/<trang>.*.html (HTML thuần, sửa trực tiếp).
+//   <trang>.head.html    : title, meta mô tả, Open Graph, JSON-LD, style riêng
+//   <trang>.main.html    : nội dung chính giữa header và footer
+//   <trang>.modal.html   : phần tử đặt sau footer (VD popup xem mẫu giấy tờ)
+//   <trang>.scripts.html : <script> riêng của trang, chạy sau js/script.js
+// Mọi đường dẫn ảnh/link trong partials là đường dẫn tương đối (assets/..., nenkin.html),
+// nên site chạy được cả ở tên miền gốc lẫn trong thư mục con (GitHub Pages /WebCong/).
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FloatingActions from '../components/FloatingActions.astro';
+
+interface Props {
+  head: string;
+  bodyClass?: string;
+  active?: string;
+  modal?: string;
+  scripts?: string;
+}
+
+const { head, bodyClass, active = '', modal = '', scripts = '' } = Astro.props;
+const isHome = active === 'index.html';
+// Đổi mỗi lần build để trình duyệt tải CSS/JS mới sau khi deploy.
+const v = Date.now().toString(36);
+---
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="assets/logos/czt-favicon-2026.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Comfortaa:wght@500;600;700&family=Noto+Serif+JP:wght@600;700&family=Dancing+Script:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href={`css/style.css?v=${v}`} />
+    <Fragment set:html={head} />
+  </head>
+  <body class={bodyClass || undefined}>
+    <Header active={active} isHome={isHome} />
+    <FloatingActions />
+
+    <slot />
+
+    <Footer isHome={isHome} />
+    <Fragment set:html={modal} />
+    <script is:inline src={`js/script.js?v=${v}`}></script>
+    <Fragment set:html={scripts} />
+  </body>
+</html>

@@ -1,0 +1,10 @@
+---
+// Nội dung trang nằm trong src/partials/policy.*.html
+import SiteLayout from '../layouts/SiteLayout.astro';
+import head from '../partials/policy.head.html?raw';
+import main from '../partials/policy.main.html?raw';
+---
+
+<SiteLayout head={head} bodyClass="" active="">
+  <Fragment set:html={main} />
+</SiteLayout>

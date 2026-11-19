@@ -1,0 +1,10 @@
+---
+// Nội dung trang nằm trong src/partials/dich-vu-khac.*.html
+import SiteLayout from '../layouts/SiteLayout.astro';
+import head from '../partials/dich-vu-khac.head.html?raw';
+import main from '../partials/dich-vu-khac.main.html?raw';
+---
+
+<SiteLayout head={head} bodyClass="dk-page" active="dich-vu-khac.html">
+  <Fragment set:html={main} />
+</SiteLayout>

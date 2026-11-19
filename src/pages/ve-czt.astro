@@ -1,0 +1,10 @@
+---
+// Nội dung trang nằm trong src/partials/ve-czt.*.html
+import SiteLayout from '../layouts/SiteLayout.astro';
+import head from '../partials/ve-czt.head.html?raw';
+import main from '../partials/ve-czt.main.html?raw';
+---
+
+<SiteLayout head={head} bodyClass="ab-page" active="ve-czt.html">
+  <Fragment set:html={main} />
+</SiteLayout>

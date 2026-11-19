@@ -1,0 +1,22 @@
+<script>
+/* FAQ: đổi nhóm câu hỏi + mở/đóng từng câu (mỗi nhóm chỉ mở 1 câu) */
+(function () {
+  var tabs = document.querySelectorAll('.fq-tab');
+  tabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      tabs.forEach(function (t) { var on = t === tab; t.classList.toggle('is-active', on); t.setAttribute('aria-selected', on); });
+      document.querySelectorAll('.fq-panel').forEach(function (p) { p.hidden = p.id !== 'fq-' + tab.dataset.fq; });
+      if (window.innerWidth <= 860) document.querySelector('.fq-panels').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  document.querySelectorAll('.fq-item__q').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.parentNode, open = !item.classList.contains('is-open');
+      item.parentNode.querySelectorAll('.fq-item').forEach(function (el) {
+        el.classList.remove('is-open'); el.querySelector('.fq-item__q').setAttribute('aria-expanded', 'false');
+      });
+      if (open) { item.classList.add('is-open'); btn.setAttribute('aria-expanded', 'true'); }
+    });
+  });
+})();
+</script>

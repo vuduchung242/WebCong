@@ -1,0 +1,11 @@
+---
+// Nội dung trang nằm trong src/partials/visa.*.html
+import SiteLayout from '../layouts/SiteLayout.astro';
+import head from '../partials/visa.head.html?raw';
+import main from '../partials/visa.main.html?raw';
+import scripts from '../partials/visa.scripts.html?raw';
+---
+
+<SiteLayout head={head} bodyClass="visa-page" active="visa.html" scripts={scripts}>
+  <Fragment set:html={main} />
+</SiteLayout>
